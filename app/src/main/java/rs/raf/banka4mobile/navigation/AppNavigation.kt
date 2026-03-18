@@ -18,7 +18,6 @@ fun AppNavigation() {
         navController = navController,
         startDestination = Screen.Login.route
     ) {
-
         composable(Screen.Splash.route) {
             SplashScreen(
                 onTimeout = { navController.navigateToLogin() }
@@ -34,14 +33,21 @@ fun AppNavigation() {
         composable(Screen.Home.route) {
             HomeScreen()
         }
-
     }
 }
 
 fun NavController.navigateToHome() {
-    navigate(Screen.Home.route)
+    navigate(Screen.Home.route) {
+        popUpTo(Screen.Login.route) {
+            inclusive = true
+        }
+    }
 }
 
 fun NavController.navigateToLogin() {
-    navigate(Screen.Login.route)
+    navigate(Screen.Login.route) {
+        popUpTo(graph.startDestinationId) {
+            inclusive = true
+        }
+    }
 }
