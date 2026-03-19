@@ -4,7 +4,7 @@ interface VerificationContract {
 
     data class UiState(
         val totp: String = "",
-        val secondsLeft: Int = 300,
+        val secondsLeft: Int = 30,
         val isLoading: Boolean = false,
         val error: Throwable? = null
     )

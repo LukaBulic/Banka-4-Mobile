@@ -95,7 +95,7 @@ fun VerificationScreen(
                     )
 
                     Text(
-                        text = "Vreme do isteka koda",
+                        text = "Vreme do generisanja novog koda",
                         color = GradientColor.copy(alpha = 0.5f),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium

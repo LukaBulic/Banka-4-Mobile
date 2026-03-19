@@ -28,25 +28,32 @@ class VerificationViewModel @Inject constructor(
     val sideEffects = _sideEffects.asSharedFlow()
 
     // Dummy secret for testing
-    private val secret = TOTPGenerator("JBSWY3DPEHPK3PXP")
-    private val codeValiditySeconds = 300 // 5 min
-    private var codeStartTime: Long = System.currentTimeMillis()
+    private val codeValiditySeconds = 30L
+    private val totpGenerator = TOTPGenerator(
+        secretBase32 = "7A2VVUBSKMI7J2OSNMBJ3GG7WVZA77N5",
+        timeStepSeconds = codeValiditySeconds
+    )
+    private var lastTimeStep: Long? = null
 
     init {
-        generateNewCode()
         viewModelScope.launch {
             while (true) {
-                val now = System.currentTimeMillis()
-                val secondsPassed = ((now - codeStartTime) / 1000).toInt()
-                val secondsLeft = (codeValiditySeconds - secondsPassed).coerceAtLeast(0)
+                val epochSeconds = System.currentTimeMillis() / 1000
+                val currentTimeStep = epochSeconds / codeValiditySeconds
+                val secondsLeft = (codeValiditySeconds - (epochSeconds % codeValiditySeconds)).toInt()
 
-                setState { copy(secondsLeft = secondsLeft) }
-
-                if (secondsLeft == 0) {
-                    codeStartTime = now
+                if (lastTimeStep == null || lastTimeStep != currentTimeStep) {
+                    val isRefresh = lastTimeStep != null
+                    lastTimeStep = currentTimeStep
                     generateNewCode()
-                    _sideEffects.emit(SideEffect.ShowToast("Kod je ponovo kreiran"))
+                    if (isRefresh) {
+                        _sideEffects.emit(SideEffect.ShowToast("Kod je ponovo kreiran"))
+                    }
                 }
+
+                // Backend may accept recently generated codes for up to 5 minutes,
+                // but UI should show canonical 30s TOTP rotation.
+                setState { copy(secondsLeft = secondsLeft) }
 
                 delay(1000)
             }
@@ -54,7 +61,7 @@ class VerificationViewModel @Inject constructor(
     }
 
     private fun generateNewCode() {
-        val totp = secret.generate()
-        setState { copy(totp = totp, secondsLeft = codeValiditySeconds) }
+        val totp = totpGenerator.generate()
+        setState { copy(totp = totp) }
     }
 }

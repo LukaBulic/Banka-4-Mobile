@@ -7,7 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import rs.raf.banka4mobile.presentation.home.HomeScreen
 import rs.raf.banka4mobile.presentation.login.LoginScreen
-import rs.raf.banka4mobile.presentation.splash.SplashScreen
+import rs.raf.banka4mobile.presentation.verification.VerificationScreen
 
 @Composable
 fun AppNavigation() {
@@ -18,12 +18,6 @@ fun AppNavigation() {
         navController = navController,
         startDestination = Screen.Login.route
     ) {
-        composable(Screen.Splash.route) {
-            SplashScreen(
-                onTimeout = { navController.navigateToLogin() }
-            )
-        }
-
         composable(Screen.Login.route) {
             LoginScreen(
                 onLoginSuccess = { navController.navigateToHome() }
@@ -31,7 +25,15 @@ fun AppNavigation() {
         }
 
         composable(Screen.Home.route) {
-            HomeScreen()
+            HomeScreen(
+                // onOpenVerification = { navController.navigate(Screen.Verification.route) }
+            )
+        }
+
+        composable(Screen.Verification.route) {
+            VerificationScreen(
+                onBack = { navController.navigateToHome() }
+            )
         }
     }
 }
